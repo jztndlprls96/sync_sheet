@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      CREDENTIALS_JSON: ${{ secrets.CREDENTIALS_JSON }}
+      CREDENTIALS_JSON: ${{ secrets.CREDENTIALS_B64 }}
 
     steps:
       - name: Checkout code
