@@ -1,0 +1,29 @@
+name: Daily Sheet Sync
+
+on:
+  schedule:
+    - cron: '0 16 * * *'  # Runs at 12:00 AM Philippines time (UTC+8)
+  workflow_dispatch:      # Allows manual run
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Save service account credentials
+        run: |
+          echo "${{ secrets.CREDENTIALS_JSON }}" > credentials.json
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run sync script
+        run: python sync_script.py
