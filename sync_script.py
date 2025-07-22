@@ -1,6 +1,7 @@
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
+import os
 
 # Setup credentials and connect to Google Sheets
 scope = [
@@ -36,6 +37,10 @@ selected_columns = [
     "PROVINCE", "MUNICIPALITY/CITY", "BARANGAY", "SOCIAL WORKER"
 ]
 
+# Create a folder for CSV exports
+EXPORT_FOLDER = "csv_exports"
+os.makedirs(EXPORT_FOLDER, exist_ok=True)
+
 # Loop through each source sheet and copy its specified tabs
 for source_name, tab_names in sources.items():
     try:
@@ -66,26 +71,16 @@ for source_name, tab_names in sources.items():
                 except gspread.exceptions.WorksheetNotFound:
                     dest_ws = dest_ss.add_worksheet(title=tab_name, rows="1000", cols="20")
 
-                # Clear + update if different or if new
+                # Clear + update
                 dest_ws.clear()
-
-                    # CSV auto exporting
-                    import os
-
-                    # Create a folder for CSV exports
-                    EXPORT_FOLDER = "csv_exports"
-                    os.makedirs(EXPORT_FOLDER, exist_ok=True)
-
-                    # Save as CSV
-                    csv_filename = f"{tab_name.replace(' ', '_')}.csv"
-                    csv_path = os.path.join(EXPORT_FOLDER, csv_filename)
-                    df.to_csv(csv_path, index=False, encoding='utf-8-sig')
-                    print(f"📁 Exported to CSV: {csv_path}")
-
                 dest_ws.update([df.columns.values.tolist()] + df.values.tolist())
-
-                            
                 print(f"✅ Synced: {source_name} > {tab_name}")
+
+                # Export to CSV
+                csv_filename = f"{tab_name.replace(' ', '_')}.csv"
+                csv_path = os.path.join(EXPORT_FOLDER, csv_filename)
+                df.to_csv(csv_path, index=False, encoding='utf-8-sig')
+                print(f"📁 Exported to CSV: {csv_path}")
 
             except Exception as e:
                 print(f"❌ Error in sheet '{tab_name}' from '{source_name}': {e}")
