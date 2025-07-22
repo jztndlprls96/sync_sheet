@@ -3,16 +3,24 @@ from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import json
 import os
+import base64
 
-# Load credentials from GitHub Actions secret
+# Load credentials from base64-encoded secret
 scope = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive"
 ]
-service_account_info = json.loads(os.environ["CREDENTIALS_JSON"])
+
+# Decode base64 string and load JSON credentials
+creds_b64 = os.environ["CREDENTIALS_B64"]
+creds_json = base64.b64decode(creds_b64).decode("utf-8")
+service_account_info = json.loads(creds_json)
+
+# Authenticate
 creds = ServiceAccountCredentials.from_json_keyfile_dict(service_account_info, scope)
 client = gspread.authorize(creds)
+
 
 # Destination spreadsheet name
 DESTINATION_SHEET_NAME = "PYTHON SYNC SHEETS"
