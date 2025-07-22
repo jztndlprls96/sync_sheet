@@ -1,25 +1,28 @@
-name: Sync Google Sheets
+name: Daily Sheet Sync
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # allows manual trigger
   schedule:
-    - cron: '0 * * * *'  # every hour
+    - cron: '0 0 * * *'  # every day at 00:00 UTC
 
 jobs:
   sync:
     runs-on: ubuntu-latest
+
     env:
-      GOOGLE_CREDENTIALS: ${{ secrets.CREDENTIALS_JSON }}
+      CREDENTIALS_JSON: ${{ secrets.CREDENTIALS_JSON }}
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: 3.10
 
       - name: Install dependencies
-        run: pip install gspread oauth2client pandas
+        run: pip install -r requirements.txt
 
       - name: Run sync script
         run: python sync_script.py
